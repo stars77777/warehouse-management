@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warehouseManag.dao.InboundLedgerDao">
+
+    <resultMap type="com.warehouseManag.entity.InboundLedger" id="InboundLedgerMap">
+        <result property="ledgerId" column="ledger_id" jdbcType="INTEGER"/>
+        <result property="goodsId" column="goods_id" jdbcType="INTEGER"/>
+        <result property="storeId" column="store_id" jdbcType="INTEGER"/>
+        <result property="quantity" column="quantity" jdbcType="INTEGER"/>
+        <result property="inboundDate" column="inbound_date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="InboundLedgerMap">
+        select
+          ledger_id, goods_id, store_id, quantity, inbound_date
+        from inbound_ledger
+        where ledger_id = #{ledgerId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="InboundLedgerMap">
+        select
+          ledger_id, goods_id, store_id, quantity, inbound_date
+        from inbound_ledger
+        <where>
+            <if test="ledgerId != null">
+                and ledger_id = #{ledgerId}
+            </if>
+            <if test="goodsId != null">
+                and goods_id = #{goodsId}
+            </if>
+            <if test="storeId != null">
+                and store_id = #{storeId}
+            </if>
+            <if test="quantity != null">
+                and quantity = #{quantity}
+            </if>
+            <if test="inboundDate != null">
+                and inbound_date = #{inboundDate}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from inbound_ledger
+        <where>
+            <if test="ledgerId != null">
+                and ledger_id = #{ledgerId}
+            </if>
+            <if test="goodsId != null">
+                and goods_id = #{goodsId}
+            </if>
+            <if test="storeId != null">
+                and store_id = #{storeId}
+            </if>
+            <if test="quantity != null">
+                and quantity = #{quantity}
+            </if>
+            <if test="inboundDate != null">
+                and inbound_date = #{inboundDate}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="ledgerId" useGeneratedKeys="true">
+        insert into inbound_ledger(goods_id, store_id, quantity, inbound_date)
+        values (#{goodsId}, #{storeId}, #{quantity}, #{inboundDate})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="ledgerId" useGeneratedKeys="true">
+        insert into inbound_ledger(goods_id, store_id, quantity, inbound_date)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.goodsId}, #{entity.storeId}, #{entity.quantity}, #{entity.inboundDate})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="ledgerId" useGeneratedKeys="true">
+        insert into inbound_ledger(goods_id, store_id, quantity, inbound_date)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.goodsId}, #{entity.storeId}, #{entity.quantity}, #{entity.inboundDate})
+        </foreach>
+        on duplicate key update
+        goods_id = values(goods_id),
+        store_id = values(store_id),
+        quantity = values(quantity),
+        inbound_date = values(inbound_date)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update inbound_ledger
+        <set>
+            <if test="goodsId != null">
+                goods_id = #{goodsId},
+            </if>
+            <if test="storeId != null">
+                store_id = #{storeId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="inboundDate != null">
+                inbound_date = #{inboundDate},
+            </if>
+        </set>
+        where ledger_id = #{ledgerId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from inbound_ledger where ledger_id = #{ledgerId}
+    </delete>
+
+</mapper>
+
